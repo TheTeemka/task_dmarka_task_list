@@ -2,14 +2,11 @@
 import { ref, provide } from 'vue';
 import ChipOption from '@/components/ChipOption.vue';
 import { getStatusOptionByID, getPriorityOptionByID } from '@/constants/Options';
-interface Column {
-    field: string;
-    header: string;
-    sortable?: boolean;
-    chippable?: boolean;
-}
+import { models } from '@go/models';
+import { Column } from '@/components/TaskColumn.vue'
 
-defineProps<{
+const props = defineProps<{
+    filter: models.TaskFilter
     tasks: any[];
     loading?: boolean;
 }>();
@@ -20,6 +17,17 @@ provide('registerColumn', (col: Column) => {
     columns.value.push(col);
 });
 
+function sort(key: string) {
+    const stdKey = key.toLowerCase()
+    if (props.filter.SortBy === stdKey) {
+        props.filter.SortOrder = props.filter.SortOrder === "asc" ? "desc" : "asc";
+    } else {
+        props.filter.SortBy = stdKey
+        props.filter.SortOrder = "asc";
+    }
+    console.log(JSON.stringify(props.filter))
+};
+
 </script>
 
 <template>
@@ -28,8 +36,15 @@ provide('registerColumn', (col: Column) => {
     <table v-else class="min-w-full table-auto border-collapse ">
         <thead>
             <tr class="bg-gray-100">
-                <th v-for="col in columns" :key="col.field" class="border border-gray-200 px-4 py-2 cursor-pointer">
+                <th v-for="col in columns" :key="col.field"
+                    :class="['border border-gray-200 px-4 py-2', col.sortable ? 'cursor-pointer hover:bg-gray-200' : '']"
+                    @click="col.sortable ? sort(col.field) : null">
                     {{ col.header }}
+                    <span
+                        :style="{ visibility: (col.sortable && filter.SortBy === col.field.toLowerCase()) ? 'visible' : 'hidden' }"
+                        class="ml-2">
+                        {{ filter.SortOrder === "asc" ? '↓' : '↑' }}
+                    </span>
                 </th>
             </tr>
         </thead>

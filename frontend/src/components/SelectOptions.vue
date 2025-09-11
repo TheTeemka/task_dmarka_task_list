@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Option } from '@/constants/Options';
 import ChipOption from '@/components/ChipOption.vue';
 
 const props = defineProps<{
-    modelValue: Option | undefined;
+    modelValue: Option | null;
     options: Option[];
     placeholder?: string;
 }>();
@@ -14,6 +14,7 @@ const emit = defineEmits<{
 }>();
 
 const isOpen = ref(false);
+const dropdownRef = ref<HTMLElement | null>(null);  // Ref for the dropdown container
 
 const selectedOption = computed((): Option => {
     const option = props.options.find(opt => opt.name === props.modelValue?.name);
@@ -28,10 +29,25 @@ const selectOption = (value: Option) => {
 const toggleDropdown = () => {
     isOpen.value = !isOpen.value;
 };
+
+const handleClickOutside = (event: Event) => {
+    if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
+        isOpen.value = false;
+    }
+};
+
+
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <template>
-    <div class="relative">
+    <div class="relative" ref="dropdownRef">
         <div @click="toggleDropdown"
             class="w-full  border border-gray-300 rounded-md bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 flex justify-between items-center">
             <ChipOption :chip="selectedOption" @click="selectOption(selectedOption)" />

@@ -67,9 +67,10 @@ export namespace models {
 	    Limit?: number;
 	    Offset?: number;
 	    TagIDs: number[];
+	    Status?: number;
 	    Priority?: number;
 	    SortBy?: string;
-	    SortOrder?: number;
+	    SortOrder?: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new TaskFilter(source);
@@ -80,6 +81,7 @@ export namespace models {
 	        this.Limit = source["Limit"];
 	        this.Offset = source["Offset"];
 	        this.TagIDs = source["TagIDs"];
+	        this.Status = source["Status"];
 	        this.Priority = source["Priority"];
 	        this.SortBy = source["SortBy"];
 	        this.SortOrder = source["SortOrder"];

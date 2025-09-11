@@ -35,8 +35,12 @@ func (ts *TaskService) GetTaskByID(id int64) (*models.TaskDTO, error) {
 	return taskModel.ToDTO(), nil
 }
 
-func (ts *TaskService) GetListByFilters(filters *models.TaskFilter) ([]*models.TaskDTO, error) {
-	taskModels, err := ts.taskRepo.GetListByFilters(filters)
+func (ts *TaskService) GetListByFilters(filter *models.TaskFilter) ([]*models.TaskDTO, error) {
+	if err := filter.Validate(); err != nil {
+		return nil, err
+	}
+
+	taskModels, err := ts.taskRepo.GetListByFilters(filter)
 	if err != nil {
 		return nil, err
 	}

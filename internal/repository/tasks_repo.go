@@ -147,9 +147,13 @@ func FilterToSQL(f *models.TaskFilter, b squirrel.SelectBuilder) squirrel.Select
 		b = b.Where(squirrel.Eq{"tasks.priority": *f.Priority})
 	}
 
+	if f.Status != nil {
+		b = b.Where(squirrel.Eq{"tasks.status": *f.Status})
+	}
+
 	if f.SortBy != nil && *f.SortBy != "" {
 		order := "ASC"
-		if f.SortOrder != nil && *f.SortOrder < 0 {
+		if f.SortOrder != nil && *f.SortOrder == "desc" {
 			order = "DESC"
 		}
 		b = b.OrderBy(fmt.Sprintf("%s %s", *f.SortBy, order))

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { CreateNewTask, GetListByFilters } from '@go/service/TaskService';
 import { models } from '@go/models';
 import DataTable from '@/components/DataTable.vue';
@@ -9,13 +9,13 @@ import TableActions from '@/components/TableActions.vue';
 const tasks = ref<models.TaskDTO[]>([]);
 const loading = ref<boolean>(false);
 const error = ref<string | null>(null);
+const filter = ref<models.TaskFilter>(new models.TaskFilter({}));
 
 const fetchTasks = async () => {
     loading.value = true;
     error.value = null;
     try {
-        const filter = new models.TaskFilter({});
-        const result = await GetListByFilters(filter);
+        const result = await GetListByFilters(filter.value);
         if (result === null) {
             tasks.value = []
         } else {
@@ -30,18 +30,10 @@ const fetchTasks = async () => {
     }
 };
 
+watch(filter, () => {
+    fetchTasks();
+}, { deep: true });
 
-const fetchTasksWithFilter = async () => {
-    await fetchTasks();
-}
-
-const sortTasks = async () => {
-    await fetchTasks();
-}
-
-const searchTasks = async () => {
-    await fetchTasks();
-}
 
 const addTask = async (task: models.TaskDTO) => {
    await CreateNewTask(task);
@@ -54,12 +46,12 @@ onMounted(fetchTasks);
 <template>
     <div class="task-manager">
         <h2 class="text-xl font-bold mb-4">Task Manager</h2>
-        <TableActions :onAdd="addTask" :onFilter="fetchTasksWithFilter" :onSort="sortTasks" :onSearch="searchTasks" />
-        <DataTable :tasks="tasks" :loading="loading">
-            <Column field="ID" header="ID" />
-            <Column field="Title" header="Title" />
-            <Column field="Status" header="Status" chippable/>
-            <Column field="Priority" header="Priority" chippable/>
+        <TableActions :addTask="addTask" :filter="filter" />
+        <DataTable :tasks="tasks" :loading="loading" :filter="filter">
+            <Column field="ID" header="ID" sortable/>
+            <Column field="Title" header="Title" sortable/>
+            <Column field="Status" header="Status" chippable sortable/>
+            <Column field="Priority" header="Priority" chippable sortable/>
         </DataTable>
     </div>
 </template>

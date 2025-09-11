@@ -1,12 +1,13 @@
 package models
 
 type TaskFilter struct {
-	Limit     *int    `validate:"omitempty,min=1,max=100"`
-	Offset    *int    `validate:"omitempty,min=0"`
-	TagIDs    []int64 `validate:"omitempty,dive,min=1"`
-	Priority  *int    `validate:"omitempty,oneof=low medium high urgent"`
-	SortBy    *string `validate:"omitempty,oneof=title status priority created_date"`
-	SortOrder *int    `validate:"omitempty,oneof=0 1"` // 0 for ASC, 1 for DESC
+	Limit     *int    `validate:"omitempty,gte=1,lte=100"`
+	Offset    *int    `validate:"omitempty,gte=0"`
+	TagIDs    []int64 `validate:"omitempty,dive,gte=1"`
+	Status    *int    `validate:"omitempty,gte=0,lte=3"`
+	Priority  *int    `validate:"omitempty,gte=0,lte=4"`
+	SortBy    *string `validate:"omitempty,oneof=id title status priority start_date due_date created_date"`
+	SortOrder *string `validate:"omitempty,oneof=asc desc"`
 }
 
 func (t *TaskFilter) Validate() error {

@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { inject, onMounted, readonly } from 'vue';
 
-const props = defineProps<{
+export interface Column {
     field: string;
     header: string;
-    chippable?: boolean
-}>();
+    sortable?: boolean;
+    chippable?: boolean;
+}
+
+const props = defineProps<Column>();
 
 const registerColumn = inject<(col: any) => void>('registerColumn');
 onMounted(()=>{
