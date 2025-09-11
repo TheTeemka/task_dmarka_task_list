@@ -14,9 +14,11 @@ func NewTaskService(taskRepo *repository.TaskRepo) *TaskService {
 }
 
 func (ts *TaskService) CreateNewTask(task *models.TaskDTO) (*models.TaskDTO, error) {
-	taskModel := task.ToModel()
+	if err := task.Validate(); err != nil {
+		return nil, err
+	}
 
-	createdTask, err := ts.taskRepo.CreateTask(taskModel)
+	createdTask, err := ts.taskRepo.CreateTask(task.ToModel())
 	if err != nil {
 		return nil, err
 	}

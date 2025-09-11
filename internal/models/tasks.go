@@ -1,13 +1,15 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type TaskModel struct {
 	ID          int64
 	Title       string
 	Description string
-	Status      int64
-	PriorityID  int64
+	Status      Status
+	Priority    int
 
 	StartDate time.Time
 	DueDate   time.Time
@@ -19,23 +21,25 @@ func (t *TaskModel) ToDTO() *TaskDTO {
 		Title:       t.Title,
 		Description: t.Description,
 		Status:      t.Status,
-		PriorityID:  t.PriorityID,
+		Priority:    t.Priority,
 		StartDate:   t.StartDate,
 		DueDate:     t.DueDate,
 	}
 }
 
 type TaskDTO struct {
-	ID          int64
-	Title       string
-	Description string
-	Status      int64
-	PriorityID  int64
+	ID          int64     `validate:"omitempty,min=1"`
+	Title       string    `validate:"required,min=1,max=100"`
+	Description string    `validate:"omitempty,max=500"`
+	Status      Status    `validate:"required,oneof=pending in_progress completed cancelled"`
+	Priority    int       `validate:"min=0,max=4"`
+	StartDate   time.Time `validate:"omitempty"`
+	DueDate     time.Time `validate:"omitempty,gtfield=StartDate"`
+	CreatedDate time.Time `validate:"omitempty"`
+}
 
-	StartDate time.Time
-	DueDate   time.Time
-
-	CreatedDate time.Time
+func (t *TaskDTO) Validate() error {
+	return validate.Struct(t)
 }
 
 func (t *TaskDTO) ToModel() *TaskModel {
@@ -44,8 +48,18 @@ func (t *TaskDTO) ToModel() *TaskModel {
 		Title:       t.Title,
 		Description: t.Description,
 		Status:      t.Status,
-		PriorityID:  t.PriorityID,
+		Priority:    t.Priority,
 		StartDate:   t.StartDate,
 		DueDate:     t.DueDate,
 	}
 }
+
+// Status represents the task status as a string enum
+type Status string
+
+const (
+	StatusPending    Status = "pending"
+	StatusInProgress Status = "in_progress"
+	StatusCompleted  Status = "completed"
+	StatusCancelled  Status = "cancelled"
+)

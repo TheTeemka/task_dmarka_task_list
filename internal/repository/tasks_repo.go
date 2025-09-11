@@ -19,10 +19,10 @@ func NewTaskRepo(db *sql.DB) *TaskRepo {
 
 func (r *TaskRepo) CreateTask(task *models.TaskModel) (*models.TaskModel, error) {
 	query := `
-		INSERT INTO tasks (title, description, status, priority_id)
-		VALUES(?, ?, ?)
+		INSERT INTO tasks (title, description, status, priority)
+		VALUES(?, ?, ?, ?)
 		RETURNING id`
-	args := []any{task.Title, task.Description, task.Status, task.PriorityID}
+	args := []any{task.Title, task.Description, task.Status, task.Priority}
 
 	err := r.db.QueryRow(query, args...).Scan(&task.ID)
 	if err != nil {
@@ -34,12 +34,12 @@ func (r *TaskRepo) CreateTask(task *models.TaskModel) (*models.TaskModel, error)
 
 func (r *TaskRepo) GetTaskByID(id int64) (*models.TaskModel, error) {
 	query := `
-		SELECT id, title, description, status, priority_id
+		SELECT id, title, description, status, priority
 		FROM tasks
 		WHERE id = ?`
 	var task models.TaskModel
 
-	err := r.db.QueryRow(query, id).Scan(&task.ID, &task.Title, &task.Description, &task.Status, &task.PriorityID)
+	err := r.db.QueryRow(query, id).Scan(&task.ID, &task.Title, &task.Description, &task.Status, &task.Priority)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, merrors.ErrNotFound
@@ -53,10 +53,10 @@ func (r *TaskRepo) GetTaskByID(id int64) (*models.TaskModel, error) {
 func (r *TaskRepo) UpdateTask(task *models.TaskModel) (*models.TaskModel, error) {
 	query := `
 		UPDATE tasks
-		SET title = ?, description = ?, status = ?, priority_id = ?
+		SET title = ?, description = ?, status = ?, priority = ?
 		WHERE id = ?`
 
-	args := []any{task.Title, task.Description, task.Status, task.PriorityID, task.ID}
+	args := []any{task.Title, task.Description, task.Status, task.Priority, task.ID}
 
 	result, err := r.db.Exec(query, args...)
 	if err != nil {
@@ -97,7 +97,7 @@ func (r *TaskRepo) DeleteTask(id int64) error {
 }
 
 func (r *TaskRepo) GetListByFilters(filter *models.TaskFilter) ([]*models.TaskModel, error) {
-	b := squirrel.StatementBuilder.Select("id", "title", "description", "status", "priority_id").From("tasks")
+	b := squirrel.StatementBuilder.Select("id", "title", "description", "status", "priority").From("tasks")
 
 	b = FilterToSQL(filter, b)
 	query, args, err := b.ToSql()
@@ -114,7 +114,7 @@ func (r *TaskRepo) GetListByFilters(filter *models.TaskFilter) ([]*models.TaskMo
 	var tasks []*models.TaskModel
 	for rows.Next() {
 		var task models.TaskModel
-		if err := rows.Scan(&task.ID, &task.Title, &task.Description, &task.Status, &task.PriorityID); err != nil {
+		if err := rows.Scan(&task.ID, &task.Title, &task.Description, &task.Status, &task.Priority); err != nil {
 			return nil, fmt.Errorf("failed to scan task: %w", err)
 		}
 		tasks = append(tasks, &task)
@@ -143,8 +143,8 @@ func FilterToSQL(f *models.TaskFilter, b squirrel.SelectBuilder) squirrel.Select
 			Where(squirrel.Eq{"tt.tag_id": f.TagIDs})
 	}
 
-	if f.PriorityID != nil {
-		b = b.Where(squirrel.Eq{"tasks.priority_id": *f.PriorityID})
+	if f.Priority != nil {
+		b = b.Where(squirrel.Eq{"tasks.priority": *f.Priority})
 	}
 
 	if f.SortBy != nil && *f.SortBy != "" {

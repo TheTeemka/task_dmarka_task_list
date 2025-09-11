@@ -1,10 +1,4 @@
 -- +goose Up
-CREATE TABLE priorities (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  color TEXT
-);
-
 CREATE TABLE tags (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
@@ -16,7 +10,7 @@ CREATE TABLE tasks (
   title TEXT NOT NULL,
   description TEXT,
   status INTEGER,
-  priority_id INTEGER REFERENCES priorities(id),
+  priority INTEGER,
   start_date DATETIME,
   due_date DATETIME,
   created_date DATETIME
@@ -32,4 +26,3 @@ CREATE TABLE task_tags (
 DROP TABLE IF EXISTS task_tags;
 DROP TABLE IF EXISTS tasks;
 DROP TABLE IF EXISTS tags;
-DROP TABLE IF EXISTS priorities;

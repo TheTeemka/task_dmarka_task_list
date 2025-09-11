@@ -3,6 +3,9 @@ package main
 import (
 	"embed"
 
+	"github.com/TheTeemka/task_dmarka_task_list/internal/database"
+	"github.com/TheTeemka/task_dmarka_task_list/internal/repository"
+	"github.com/TheTeemka/task_dmarka_task_list/internal/service"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -12,21 +15,22 @@ import (
 var assets embed.FS
 
 func main() {
-	// Create an instance of the app structure
-	app := NewApp()
+	db := database.NewSQLiteConnection("./data/data.db")
+	taskRepo := repository.NewTaskRepo(db)
+	taskService := service.NewTaskService(taskRepo)
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "Task_DMARKA_task_list",
+		Title:  "myproject",
 		Width:  1024,
 		Height: 768,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup:        app.startup,
+		// OnStartup:        ,
 		Bind: []interface{}{
-			app,
+			taskService,
 		},
 	})
 

@@ -5,9 +5,3 @@ type Tag struct {
 	Name  string
 	Color string
 }
-
-type Priority struct {
-	ID    int64
-	Name  string
-	Color string
-}
