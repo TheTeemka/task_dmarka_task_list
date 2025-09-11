@@ -19,6 +19,9 @@ func main() {
 	taskRepo := repository.NewTaskRepo(db)
 	taskService := service.NewTaskService(taskRepo)
 
+	tagRepo := repository.NewTagsRepo(db)
+	tagService := service.NewTagsService(tagRepo)
+
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "myproject",
@@ -31,6 +34,7 @@ func main() {
 		// OnStartup:        ,
 		Bind: []interface{}{
 			taskService,
+			tagService,
 		},
 	})
 

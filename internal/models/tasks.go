@@ -8,7 +8,7 @@ type TaskModel struct {
 	ID          int64
 	Title       string
 	Description string
-	Status      Status
+	Status      int
 	Priority    int
 
 	StartDate time.Time
@@ -31,7 +31,7 @@ type TaskDTO struct {
 	ID          int64     `validate:"omitempty,min=1"`
 	Title       string    `validate:"required,min=1,max=100"`
 	Description string    `validate:"omitempty,max=500"`
-	Status      Status    `validate:"required,oneof=pending in_progress completed cancelled"`
+	Status      int       `validate:"min=0,max=4"`
 	Priority    int       `validate:"min=0,max=4"`
 	StartDate   time.Time `validate:"omitempty"`
 	DueDate     time.Time `validate:"omitempty,gtfield=StartDate"`

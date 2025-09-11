@@ -1,10 +1,26 @@
 export namespace models {
 	
+	export class TagDTO {
+	    id: number;
+	    name: string;
+	    color: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TagDTO(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.color = source["color"];
+	    }
+	}
 	export class TaskDTO {
 	    ID: number;
 	    Title: string;
 	    Description: string;
-	    Status: string;
+	    Status: number;
 	    Priority: number;
 	    // Go type: time
 	    StartDate: any;

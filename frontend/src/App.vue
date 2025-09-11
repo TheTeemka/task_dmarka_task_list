@@ -1,7 +1,7 @@
 <script setup>
-import TaskManager from './components/TaskManager.vue';
+import ListPage from './views/ListPage.vue';
 </script>
 
 <template>
-  <TaskManager/>
+  <ListPage/>
 </template>

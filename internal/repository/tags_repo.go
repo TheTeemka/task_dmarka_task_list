@@ -16,15 +16,29 @@ func NewTagsRepo(db *sql.DB) *TagsRepo {
 	return &TagsRepo{db: db}
 }
 
+func (r *TagsRepo) CreateTag(tag *models.TagModel) (*models.TagModel, error) {
+	query := `INSERT INTO tags (name, color) VALUES (?, ?)`
+	result, err := r.db.Exec(query, tag.Name, tag.Color)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create tag: %w", err)
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get last insert id: %w", err)
+	}
+	tag.ID = id
+	return tag, nil
+}
+
 // GetTagsForTask returns full tag records associated with a task.
-func (r *TagsRepo) GetTagsForTask(taskID int64) ([]models.Tag, error) {
+func (r *TagsRepo) GetTagsForTask(taskID int64) ([]models.TagModel, error) {
 	query := `
 		SELECT t.id, t.name, t.color
 		FROM tags t
 		JOIN task_tags tt ON t.id = tt.tag_id
 		WHERE tt.task_id = ?`
 
-	var tags []models.Tag
+	var tags []models.TagModel
 	rows, err := r.db.Query(query, taskID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get tags for task: %w", err)
@@ -32,7 +46,7 @@ func (r *TagsRepo) GetTagsForTask(taskID int64) ([]models.Tag, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var tag models.Tag
+		var tag models.TagModel
 		if err := rows.Scan(&tag.ID, &tag.Name, &tag.Color); err != nil {
 			return nil, fmt.Errorf("failed to scan tag: %w", err)
 		}
@@ -46,12 +60,12 @@ func (r *TagsRepo) GetTagsForTask(taskID int64) ([]models.Tag, error) {
 	return tags, nil
 }
 
-func (r *TagsRepo) GetTagByID(id int64) (*models.Tag, error) {
+func (r *TagsRepo) GetTagByID(id int64) (*models.TagModel, error) {
 	query := `
 		SELECT id, name, color
 		FROM tags
 		WHERE id = ?`
-	var tag models.Tag
+	var tag models.TagModel
 
 	err := r.db.QueryRow(query, id).Scan(&tag.ID, &tag.Name, &tag.Color)
 	if err != nil {
@@ -62,4 +76,13 @@ func (r *TagsRepo) GetTagByID(id int64) (*models.Tag, error) {
 	}
 
 	return &tag, nil
+}
+
+func (r *TagsRepo) UpdateTag(tag *models.TagModel) (*models.TagModel, error) {
+	query := `UPDATE tags SET name = ?, color = ? WHERE id = ?`
+	_, err := r.db.Exec(query, tag.Name, tag.Color, tag.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update tag: %w", err)
+	}
+	return tag, nil
 }
