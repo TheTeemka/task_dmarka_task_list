@@ -28,9 +28,7 @@ watch(theme, (newTheme) => {
 
 <template>
     <button @click="toggleTheme" 
-        class="px-4 py-2 bg-secondary  text-content  rounded-md hover:bg-muted  transition duration-200 flex items-center gap-2">
-        <span v-if="theme === 'light'">🌙</span>
-        <span v-else>☀️</span>
-        {{ theme === 'light' ? 'Dark' : 'Light' }}
+        class="px-4 py-2 bg-secondary  text-content  rounded-md hover:bg-muted  transition duration-200 flex items-center gap-2 border border-r-2 border-muted">
+        {{ theme === 'light' ? '☀️ Light' : '🌙 Dark' }}
     </button>
 </template>
