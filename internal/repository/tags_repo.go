@@ -17,16 +17,11 @@ func NewTagsRepo(db *sql.DB) *TagsRepo {
 }
 
 func (r *TagsRepo) CreateTag(tag *models.TagModel) (*models.TagModel, error) {
-	query := `INSERT INTO tags (name, color) VALUES (?, ?)`
-	result, err := r.db.Exec(query, tag.Name, tag.Color)
+	query := `INSERT INTO tags (name, color) VALUES ($1, $2) RETURNING id`
+	err := r.db.QueryRow(query, tag.Name, tag.Color).Scan(&tag.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create tag: %w", err)
 	}
-	id, err := result.LastInsertId()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get last insert id: %w", err)
-	}
-	tag.ID = id
 	return tag, nil
 }
 
@@ -36,7 +31,7 @@ func (r *TagsRepo) GetTagsForTask(taskID int64) ([]models.TagModel, error) {
 		SELECT t.id, t.name, t.color
 		FROM tags t
 		JOIN task_tags tt ON t.id = tt.tag_id
-		WHERE tt.task_id = ?`
+		WHERE tt.task_id = $1`
 
 	var tags []models.TagModel
 	rows, err := r.db.Query(query, taskID)
@@ -64,7 +59,7 @@ func (r *TagsRepo) GetTagByID(id int64) (*models.TagModel, error) {
 	query := `
 		SELECT id, name, color
 		FROM tags
-		WHERE id = ?`
+		WHERE id = $1`
 	var tag models.TagModel
 
 	err := r.db.QueryRow(query, id).Scan(&tag.ID, &tag.Name, &tag.Color)
@@ -79,7 +74,7 @@ func (r *TagsRepo) GetTagByID(id int64) (*models.TagModel, error) {
 }
 
 func (r *TagsRepo) UpdateTag(tag *models.TagModel) (*models.TagModel, error) {
-	query := `UPDATE tags SET name = ?, color = ? WHERE id = ?`
+	query := `UPDATE tags SET name = $1, color = $2 WHERE id = $3`
 	_, err := r.db.Exec(query, tag.Name, tag.Color, tag.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update tag: %w", err)
@@ -88,7 +83,7 @@ func (r *TagsRepo) UpdateTag(tag *models.TagModel) (*models.TagModel, error) {
 }
 
 func (r *TagsRepo) DeleteTag(id int64) error {
-	query := `DELETE FROM tags WHERE id = ?`
+	query := `DELETE FROM tags WHERE id = $1`
 	result, err := r.db.Exec(query, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete tag: %w", err)
@@ -131,7 +126,7 @@ func (r *TagsRepo) GetAllTags() ([]*models.TagModel, error) {
 }
 
 func (r *TagsRepo) AddTagToTask(taskID, tagID int64) error {
-	query := `INSERT INTO task_tags (task_id, tag_id) VALUES (?, ?)`
+	query := `INSERT INTO task_tags (task_id, tag_id) VALUES ($1, $2)`
 	_, err := r.db.Exec(query, taskID, tagID)
 	if err != nil {
 		return fmt.Errorf("failed to add tag to task: %w", err)
@@ -140,7 +135,7 @@ func (r *TagsRepo) AddTagToTask(taskID, tagID int64) error {
 }
 
 func (r *TagsRepo) RemoveTagFromTask(taskID, tagID int64) error {
-	query := `DELETE FROM task_tags WHERE task_id = ? AND tag_id = ?`
+	query := `DELETE FROM task_tags WHERE task_id = $1 AND tag_id = $2`
 	result, err := r.db.Exec(query, taskID, tagID)
 	if err != nil {
 		return fmt.Errorf("failed to remove tag from task: %w", err)

@@ -21,7 +21,7 @@ func NewTaskRepo(db *sql.DB) *TaskRepo {
 func (r *TaskRepo) CreateTask(task *models.TaskModel) (*models.TaskModel, error) {
 	query := `
 		INSERT INTO tasks (title, description, status, priority, due_date, completed_date)
-		VALUES(?, ?, ?, ?, ?, ?)
+		VALUES($1, $2, $3, $4, $5, $6)
 		RETURNING id`
 	args := []any{task.Title, task.Description, task.Status, task.Priority, task.DueDate, task.CompletedDate}
 
@@ -37,7 +37,7 @@ func (r *TaskRepo) GetTaskByID(id int64) (*models.TaskModel, error) {
 	query := `
 		SELECT id, title, description, status, priority, due_date, completed_date, created_at
 		FROM tasks
-		WHERE id = ?`
+		WHERE id = $1`
 	var task models.TaskModel
 
 	err := r.db.QueryRow(query, id).Scan(&task.ID, &task.Title, &task.Description, &task.Status, &task.Priority, &task.DueDate, &task.CompletedDate, &task.CreatedDate)
@@ -54,8 +54,8 @@ func (r *TaskRepo) GetTaskByID(id int64) (*models.TaskModel, error) {
 func (r *TaskRepo) UpdateTask(id int64, task *models.TaskModel) (*models.TaskModel, error) {
 	query := `
 		UPDATE tasks
-		SET title = ?, description = ?, status = ?, priority = ?, due_date = ?, completed_date = ?
-		WHERE id = ?`
+		SET title = $1, description = $2, status = $3, priority = $4, due_date = $5, completed_date = $6
+		WHERE id = $7`
 
 	args := []any{task.Title, task.Description, task.Status, task.Priority, task.DueDate, task.CompletedDate, id}
 
@@ -79,7 +79,7 @@ func (r *TaskRepo) UpdateTask(id int64, task *models.TaskModel) (*models.TaskMod
 func (r *TaskRepo) DeleteTask(id int64) error {
 	query := `
 		DELETE FROM tasks
-		WHERE id = ?`
+		WHERE id = $1`
 
 	result, err := r.db.Exec(query, id)
 	if err != nil {
@@ -98,7 +98,7 @@ func (r *TaskRepo) DeleteTask(id int64) error {
 }
 
 func (r *TaskRepo) GetListByFilters(filter *models.TaskFilter) ([]*models.TaskModel, error) {
-	b := squirrel.StatementBuilder.Select("id", "title", "description", "status", "priority", "due_date", "completed_date", "created_at").From("tasks")
+	b := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("id", "title", "description", "status", "priority", "due_date", "completed_date", "created_at").From("tasks")
 
 	b = FilterToSQL(filter, b)
 	query, args, err := b.ToSql()

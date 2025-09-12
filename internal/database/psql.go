@@ -2,49 +2,28 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"log/slog"
-	"os"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/lib/pq"
 )
 
-func NewSQLiteConnection(source string) *sql.DB {
-	slog.Info("Connecting to SQLite database (sqlx)")
+func NewPostgreSQLConnection(dbSourse string) *sql.DB {
+	slog.Info("Connecting to PostgreSQL database")
 
-	db, err := sql.Open("sqlite3", source)
+	db, err := sql.Open("postgres", dbSourse)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("Failed to open PostgreSQL connection: %v", err))
 	}
 
-	// optional pragmas
-	if _, err := db.Exec("PRAGMA foreign_keys = ON;"); err != nil {
-		panic(err)
-	}
+	// Configure connection pool
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(25)
 
 	if err := db.Ping(); err != nil {
-		panic(err)
+		panic(fmt.Sprintf("Failed to ping PostgreSQL database: %v", err))
 	}
 
-	slog.Info("Successfully connected to SQLite database")
+	slog.Info("Successfully connected to PostgreSQL database")
 	return db
-}
-
-func NewEmbeddedSQLite(b []byte) (*sql.DB, error) {
-
-	tmpFile, err := os.CreateTemp("", "app-*.db")
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := tmpFile.Write(b); err != nil {
-		return nil, err
-	}
-	tmpFile.Close()
-
-	db, err := sql.Open("sqlite3", tmpFile.Name())
-	if err != nil {
-		return nil, err
-	}
-
-	return db, nil
 }

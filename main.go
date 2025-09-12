@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 
+	"github.com/TheTeemka/task_dmarka_task_list/internal/config"
 	"github.com/TheTeemka/task_dmarka_task_list/internal/database"
 	"github.com/TheTeemka/task_dmarka_task_list/internal/repository"
 	"github.com/TheTeemka/task_dmarka_task_list/internal/service"
@@ -15,7 +16,9 @@ import (
 var assets embed.FS
 
 func main() {
-	db := database.NewSQLiteConnection("data/data.db")
+	cfg := config.LoadConfig()
+
+	db := database.NewPostgreSQLConnection(cfg.PSQLSource)
 	taskRepo := repository.NewTaskRepo(db)
 	taskService := service.NewTaskService(taskRepo)
 

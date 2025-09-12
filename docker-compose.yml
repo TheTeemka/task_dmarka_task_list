@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres
+    container_name: tasklist_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PSQL_NAME}
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_PASSWORD: ${PSQL_PASSWORD}
+    ports:
+      - "${PSQL_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
