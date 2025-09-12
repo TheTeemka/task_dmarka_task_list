@@ -35,7 +35,7 @@ func (r *TaskRepo) CreateTask(task *models.TaskModel) (*models.TaskModel, error)
 
 func (r *TaskRepo) GetTaskByID(id int64) (*models.TaskModel, error) {
 	query := `
-		SELECT id, title, description, status, priority, due_date, completed_date, created_date
+		SELECT id, title, description, status, priority, due_date, completed_date, created_at
 		FROM tasks
 		WHERE id = ?`
 	var task models.TaskModel
@@ -98,7 +98,7 @@ func (r *TaskRepo) DeleteTask(id int64) error {
 }
 
 func (r *TaskRepo) GetListByFilters(filter *models.TaskFilter) ([]*models.TaskModel, error) {
-	b := squirrel.StatementBuilder.Select("id", "title", "description", "status", "priority", "due_date", "completed_date", "created_date").From("tasks")
+	b := squirrel.StatementBuilder.Select("id", "title", "description", "status", "priority", "due_date", "completed_date", "created_at").From("tasks")
 
 	b = FilterToSQL(filter, b)
 	query, args, err := b.ToSql()

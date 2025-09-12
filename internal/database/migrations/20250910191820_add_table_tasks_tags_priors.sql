@@ -13,7 +13,7 @@ CREATE TABLE tasks (
   priority INTEGER,
   due_date DATETIME,
   completed_date DATETIME,
-  created_date DATETIME DEFAULT CURRENT_TIMESTAMP
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE task_tags (

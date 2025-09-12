@@ -5,10 +5,13 @@ import { getStatusOptionByID, getPriorityOptionByID, statusOptionsWithColor, pri
 import { models } from '@go/models';
 import { Column } from '@/components/TaskColumn.vue'
 import SelectOptions from './SelectOptions.vue';
+import Datepicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
+
 
 const props = defineProps<{
     filter: models.TaskFilter
-    tasks: any[];
+    tasks: models.TaskDTO[];
     loading?: boolean;
     updateTask: (id: number, task: models.TaskDTO) => Promise<void>;  // New prop
     deleteTask: (id: number) => Promise<void>;  // Add delete prop
@@ -34,20 +37,53 @@ function sort(key: string) {
 
 const editing = ref<string | null>(null);
 
-const startEdit = (taskId: string, field: string) => {
+const startEdit = (taskId: number, field: string) => {
     editing.value = `${taskId}-${field}`;
 };
 
 const stopEdit = async (task: any, field: string, value: any) => {
     task[field] = value;
-    editing.value = null;  
-    await props.updateTask(task.ID, task);
+    editing.value = null;
+    await props.updateTask(task.id, task);
 };
 
 const onEnter = (event: KeyboardEvent, task: any, field: string) => {
     if (event.key === 'Enter') {
         stopEdit(task, field, (event.target as HTMLInputElement).value);
     }
+};
+
+// Format date to presentable format
+const formatDate = (date: string): string => {
+    if (!date) return '';
+
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) return '';
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const dateOnly = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+
+    // Check for relative dates
+    if (dateOnly.getTime() === today.getTime()) {
+        return 'Today';
+    } else if (dateOnly.getTime() === tomorrow.getTime()) {
+        return 'Tomorrow';
+    } else if (dateOnly.getTime() === yesterday.getTime()) {
+        return 'Yesterday';
+    }
+
+    // Format as readable date
+    return dateObj.toLocaleDateString('en-KZ', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
 };
 
 </script>
@@ -71,39 +107,50 @@ const onEnter = (event: KeyboardEvent, task: any, field: string) => {
             </tr>
         </thead>
         <tbody>
-            <tr v-for="item in tasks" :key="item.ID || item.id" class="hover:bg-surface ">
+            <tr v-for="item in tasks" :key="item.id"
+                :class="item.status === 3 ?' ' : ''">
                 <td v-for="col in columns" :key="col.field" class="border border-muted px-4 py-2"
-                    :style="{ width: col.width }">
+                    :style="{ width: col.width }" @click="col.editable ? startEdit(item.id, col.field) : null">
                     <!-- Actions Column -->
                     <template v-if="col.field === 'actions'">
-                        <button @click="props.deleteTask(item.ID)" class="px-2 py-1 bg-error text-content rounded hover:bg-accent">Delete</button>
+                        <button @click="props.deleteTask(item.id)"
+                            class="px-2 py-1 bg-error text-content rounded hover:bg-accent">Delete</button>
                     </template>
                     <!-- Editable Text Fields -->
                     <template v-else>
-                        <input v-if="col.editable && !col.chippable && editing === `${item.ID}-${col.field}`"
-                            :value="item[col.field]"
-                            @blur="stopEdit(item, col.field, ($event.target as HTMLInputElement)?.value || '')"
-                            @keydown="onEnter($event, item, col.field)"
-                            class="w-full border border-muted rounded px-2 py-1" />
                         <!-- Editable Select for Status -->
                         <SelectOptions
-                            v-else-if="col.editable && col.field === 'Status' && editing === `${item.ID}-${col.field}`"
+                            v-if="col.editable && col.chippable && col.field === 'status' && editing === `${item.id}-${col.field}`"
                             :modelValue="getStatusOptionByID(item[col.field])" :options="statusOptionsWithColor"
-                            :isOpen="true" 
-                            @update:modelValue="stopEdit(item, col.field, $event?.id || null)" />
+                            :isOpen="true" @update:modelValue="stopEdit(item, col.field, $event?.id || null)" />
 
                         <!-- Editable Select for Priority -->
                         <SelectOptions
-                            v-else-if="col.editable && col.field === 'Priority' && editing === `${item.ID}-${col.field}`"
+                            v-else-if="col.editable && col.chippable && col.field === 'priority' && editing === `${item.id}-${col.field}`"
                             :modelValue="getPriorityOptionByID(item[col.field])" :options="priorityOptionsWithColor"
-                            :isOpen="true" 
-                            @update:modelValue="stopEdit(item, col.field, $event?.id || null)" />
+                            :isOpen="true" @update:modelValue="stopEdit(item, col.field, $event?.id || null)" />
 
-                        <div v-else @click="col.editable ? startEdit(item.ID, col.field) : null"
-                            :class="col.editable ? 'cursor-pointer' : ''">
+                        <!-- Editable Date Input for DueDate -->
+                        <Datepicker v-else-if="col.editable && col.isDate && editing === `${item.id}-${col.field}`"
+                            :model-value="item[col.field as keyof models.TaskDTO] ? new Date(item[col.field as keyof models.TaskDTO]) : null"
+                            :enable-time-picker="false" :format="'yyyy-MM-dd'" :text-input="true" class="w-full"
+                            :clearable="false"
+                            :hide-input-icon="true"
+                            :auto-apply="true" @update:model-value="stopEdit(item, col.field, $event)" />
+
+                        <textarea v-else-if="col.editable && editing === `${item.id}-${col.field}`"
+                            :value="item[col.field as keyof models.TaskDTO]"     @blur="stopEdit(item, col.field, ($event.target as HTMLTextAreaElement)?.value || '')"
+
+                            @keydown="onEnter($event, item, col.field)" :min-height="40" :max-height="120"
+                            class="w-full border border-muted rounded px-2 py-1" />
+
+                        <div v-else :class="col.editable ? 'cursor-pointer' : ''" class="w-full h-full">
                             <ChipOption v-if="col.chippable"
-                                :chip="col.field === 'Status' ? getStatusOptionByID(item[col.field]) : getPriorityOptionByID(item[col.field])" />
-                            <span v-else>{{ item[col.field] }}</span>
+                                :chip="col.field === 'status' ? getStatusOptionByID(item[col.field as keyof models.TaskDTO] as number) : getPriorityOptionByID(item[col.field as keyof models.TaskDTO] as number)" />
+
+                            <span v-else-if="col.isDate">{{ formatDate(item[col.field as keyof models.TaskDTO] as
+                                string) }}</span>
+                            <span v-else>{{ item[col.field as keyof models.TaskDTO] }}</span>
                         </div>
                     </template>
                 </td>
@@ -111,3 +158,4 @@ const onEnter = (event: KeyboardEvent, task: any, field: string) => {
         </tbody>
     </table>
 </template>
+

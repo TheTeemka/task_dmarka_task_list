@@ -15,10 +15,10 @@ const filter = ref<models.TaskFilter>(new models.TaskFilter({}));
 
 // Confirm modal state
 const confirmModal = ref({
-  visible: false,
-  title: '',
-  message: '',
-  onConfirm: () => {},
+    visible: false,
+    title: '',
+    message: '',
+    onConfirm: () => { },
 });
 
 const fetchTasks = async () => {
@@ -26,6 +26,7 @@ const fetchTasks = async () => {
     error.value = null;
     try {
         const result = await GetListByFilters(filter.value);
+        console.log(result);
         if (result === null) {
             tasks.value = []
         } else {
@@ -35,7 +36,6 @@ const fetchTasks = async () => {
         alert(e)
         error.value = 'Failed to fetch tasks';
     } finally {
-        console.log(tasks.value)
         loading.value = false;
     }
 };
@@ -46,6 +46,7 @@ watch(filter, () => {
 
 
 const addTask = async (task: models.TaskDTO) => {
+    console.log(task)
     await CreateNewTask(task);
     await fetchTasks();
 }
@@ -61,17 +62,17 @@ const updateTask = async (id: number, updatedTask: models.TaskDTO) => {
 
 const deleteTask = async (id: number) => {
     confirmModal.value = {
-      visible: true,
-      title: 'Delete Task',
-      message: 'Are you sure you want to delete this task? This action cannot be undone.',
-      onConfirm: async () => {
-        try {
-          await DeleteTask(id);
-          await fetchTasks();
-        } catch (e) {
-          alert('Failed to delete task: ' + e);
-        }
-      },
+        visible: true,
+        title: 'Delete Task',
+        message: 'Are you sure you want to delete this task? This action cannot be undone.',
+        onConfirm: async () => {
+            try {
+                await DeleteTask(id);
+                await fetchTasks();
+            } catch (e) {
+                alert('Failed to delete task: ' + e);
+            }
+        },
     };
 };
 
@@ -86,20 +87,17 @@ onMounted(fetchTasks);
         </div>
         <TableActions :addTask="addTask" :filter="filter" />
         <DataTable :tasks="tasks" :loading="loading" :filter="filter" :updateTask="updateTask" :deleteTask="deleteTask">
-            <Column field="ID" header="ID" sortable width="4px" />
-            <Column field="Title" header="Title" sortable editable width="20%" />
-            <Column field="Status" header="Status" chippable sortable editable width="10%" />
-            <Column field="Priority" header="Priority" chippable sortable editable width="10%" />
-            <Column field="Description" header="Description" editable />
+            <Column field="id" header="ID" sortable width="4px" />
+            <Column field="title" header="Title" sortable editable width="20%" />
+            <Column field="status" header="Status" chippable sortable editable width="10%" />
+            <Column field="priority" header="Priority" chippable sortable editable width="10%" />
+            <Column field="created_at" header="Created Date" sortable  isDate width="12%" />
+            <Column field="due_date" header="Due Date" sortable editable isDate width="12%" />
+            <Column field="description" header="Description" editable />
             <Column field="actions" header="Actions" width="10%" />
         </DataTable>
 
-        <ConfirmModal
-          :visible="confirmModal.visible"
-          :title="confirmModal.title"
-          :message="confirmModal.message"
-          @confirm="confirmModal.onConfirm()"
-          @close="confirmModal.visible = false"
-        />
+        <ConfirmModal :visible="confirmModal.visible" :title="confirmModal.title" :message="confirmModal.message"
+            @confirm="confirmModal.onConfirm()" @close="confirmModal.visible = false" />
     </div>
 </template>

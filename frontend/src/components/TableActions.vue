@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { models } from '@go/models';
-import AddTaskModal from './AddTaskModal.vue';
+import AddTaskModal from './AddTaskPage.vue';
 import SelectOptions from './SelectOptions.vue';
-import { Option, priorityOptionsWithColor, statusOptionsWithColor } from '@/constants/Options';
+import { getPriorityOptionByID, Option, priorityOptionsWithColor, statusOptionsWithColor } from '@/constants/Options';
 const props = defineProps<{
     filter: models.TaskFilter;
     addTask: (task: models.TaskDTO) => void;
 }>();
 
-const filterStatus = ref<Option|null>(null);
+const filterStatus = ref<Option|null>(getPriorityOptionByID(0));
 watch(filterStatus, (newStatus) => {
     if (newStatus?.id !== null) {
         props.filter.Status = [newStatus?.id as number]
@@ -18,8 +18,9 @@ watch(filterStatus, (newStatus) => {
     }
 })
 
-const filterPriority = ref<Option|null>(null);
+const filterPriority = ref<Option>(getPriorityOptionByID(0));
 watch(filterPriority, (newPriority) => {
+    console.log(newPriority)
     if (newPriority?.id !== null) {
         props.filter.Priority = [newPriority?.id as number]
     }else{

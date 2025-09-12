@@ -15,7 +15,7 @@ import (
 var assets embed.FS
 
 func main() {
-	db := database.NewSQLiteConnection("./data/data.db")
+	db := database.NewSQLiteConnection("data/data.db")
 	taskRepo := repository.NewTaskRepo(db)
 	taskService := service.NewTaskService(taskRepo)
 

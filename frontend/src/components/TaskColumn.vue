@@ -7,6 +7,7 @@ export interface Column {
     sortable?: boolean;
     chippable?: boolean;
     editable?: boolean;
+    isDate?: boolean;
     width?: string;  // Add width prop
 }
 

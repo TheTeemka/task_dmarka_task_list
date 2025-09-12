@@ -13,7 +13,7 @@ type TaskFilter struct {
 
 	Search *string `validate:"omitempty"`
 
-	SortBy    *string `validate:"omitempty,oneof=id title status priority due_date completed_date created_date"`
+	SortBy    *string `validate:"omitempty,oneof=id title status priority due_date completed_date created_at duedate "`
 	SortOrder *string `validate:"omitempty,oneof=asc desc"`
 }
 

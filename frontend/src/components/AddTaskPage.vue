@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { models } from '@go/models';
 import { getStatusOptionByID, getPriorityOptionByID, statusOptionsWithColor, priorityOptionsWithColor, Option } from '@/constants/Options';
 import SelectOptions from './SelectOptions.vue';
+import Datepicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
 
 defineProps<{
     visible: boolean;
@@ -19,24 +21,23 @@ const title = ref<string>("");
 const description = ref<string>('');
 const status = ref<Option>(getStatusOptionByID(0));
 const priority = ref<Option>(getPriorityOptionByID(0));
+const dueDate = ref<Date | null>(null);
 
 const addTask = () => {
     if (!title.value.trim()) return;
 
     const taskData = {
-        Title: title.value.trim(),
-        Description: description.value.trim(),
-        Status: status.value?.id as number,
-        Priority: priority.value?.id as number,
+        title: title.value.trim(),
+        description: description.value.trim(),
+        status: status.value?.id as number,
+        priority: priority.value?.id as number,
+        due_date: dueDate.value || new Date(),
     };
 
-    // Validate before creating (optional, but improves safety)
-    if (!taskData.Status) {
-        alert('Please select a status');
-        return;
-    }
 
     const task = new models.TaskDTO(taskData);
+
+    console.log(taskData, task)
     emit('add', task);
     resetForm();
     emit('close');
@@ -47,6 +48,7 @@ const resetForm = () => {
     description.value = '';
     status.value = getStatusOptionByID(0);
     priority.value = getPriorityOptionByID(0);
+    dueDate.value = null;
 };
 
 const closeModal = () => {
@@ -54,9 +56,44 @@ const closeModal = () => {
     emit('close');
 };
 
-watch(status, () => {
-    console.log(status)
-})
+// Format date to presentable format
+const formatDate = (date: any): string => {
+    if (!date) return '';
+
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) return '';
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const dateOnly = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+
+    // Check for relative dates
+    if (dateOnly.getTime() === today.getTime()) {
+        return 'Today';
+    } else if (dateOnly.getTime() === tomorrow.getTime()) {
+        return 'Tomorrow';
+    } else if (dateOnly.getTime() === yesterday.getTime()) {
+        return 'Yesterday';
+    }
+
+    // Format as readable date
+    return dateObj.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+};
+
+// Custom format function for Datepicker
+const formatDateForPicker = (date: Date): string => {
+    return formatDate(date);
+};
+
 
 </script>
 
@@ -79,6 +116,13 @@ watch(status, () => {
                         <label class="block text-sm font-medium mb-1">Priority</label>
                         <SelectOptions v-model="priority" :options="priorityOptionsWithColor" />
                     </div>
+
+                    <div class="mb-4 h-full">
+                        <label class="block text-sm font-medium mb-1">Due Date</label>
+                        <Datepicker v-model="dueDate" :enable-time-picker="false" :format="formatDateForPicker"
+                            placeholder="Select due date" :text-input="true" :clearable="true" :auto-apply="true"
+                            required />
+                    </div>
                 </div>
 
                 <div class="mb-4">
@@ -87,6 +131,7 @@ watch(status, () => {
                         class="w-full px-3 py-2 border border-muted rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                         rows="5"></textarea>
                 </div>
+
                 <div class="flex justify-end gap-2">
                     <button type="button" @click="closeModal"
                         class="px-4 py-2 border border-muted rounded-md hover:bg-secondary  focus:outline-none">

@@ -17,17 +17,14 @@ export namespace models {
 	    }
 	}
 	export class TaskDTO {
-	    ID: number;
-	    Title: string;
-	    Description: string;
-	    Status: number;
-	    Priority: number;
-	    // Go type: time
-	    DueDate: any;
-	    // Go type: time
-	    CompletedDate: any;
-	    // Go type: time
-	    CreatedDate: any;
+	    id: number;
+	    title: string;
+	    description: string;
+	    status: number;
+	    priority: number;
+	    due_date: string;
+	    completed_date: string;
+	    created_at: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new TaskDTO(source);
@@ -35,33 +32,15 @@ export namespace models {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.ID = source["ID"];
-	        this.Title = source["Title"];
-	        this.Description = source["Description"];
-	        this.Status = source["Status"];
-	        this.Priority = source["Priority"];
-	        this.DueDate = this.convertValues(source["DueDate"], null);
-	        this.CompletedDate = this.convertValues(source["CompletedDate"], null);
-	        this.CreatedDate = this.convertValues(source["CreatedDate"], null);
+	        this.id = source["id"];
+	        this.title = source["title"];
+	        this.description = source["description"];
+	        this.status = source["status"];
+	        this.priority = source["priority"];
+	        this.due_date = source["due_date"];
+	        this.completed_date = source["completed_date"];
+	        this.created_at = source["created_at"];
 	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
 	}
 	export class TaskFilter {
 	    Limit?: number;

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"log/slog"
+
 	"github.com/TheTeemka/task_dmarka_task_list/internal/models"
 	"github.com/TheTeemka/task_dmarka_task_list/internal/repository"
 )
@@ -36,6 +38,7 @@ func (ts *TaskService) GetTaskByID(id int64) (*models.TaskDTO, error) {
 }
 
 func (ts *TaskService) GetListByFilters(filter *models.TaskFilter) ([]*models.TaskDTO, error) {
+	slog.Info("GetListByFilters called", "filter", filter)
 	if err := filter.Validate(); err != nil {
 		return nil, err
 	}
