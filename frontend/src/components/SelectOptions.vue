@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Option } from '@/constants/Options';
 import ChipOption from '@/components/ChipOption.vue';
 
@@ -64,10 +64,10 @@ onUnmounted(() => {
 <template>
     <div class="relative" ref="dropdownRef">  
         <div @click="toggleDropdown"
-            class="w-full border border-gray-300 rounded-md bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 flex justify-between items-center">
+            class="w-full border border-muted rounded-md bg-surface  cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary flex justify-between items-center">
             <ChipOption :chip="selectedOption" @click="selectOption(selectedOption)" />
         </div>
-        <div  ref="childRef" class="absolute z-10 mt-1 bg-white border border-gray-300 rounded-md shadow-lg" :style="{visibility: isOpen ? 'visible' : 'hidden'}">
+        <div  ref="childRef" class="absolute z-10 mt-1 bg-surface  border border-muted rounded-md shadow-lg" :style="{visibility: isOpen ? 'visible' : 'hidden'}">
             <div v-for="option in options" :key="option.id || option.name">
                 <ChipOption :chip="option" @click="selectOption(option)" />
             </div>

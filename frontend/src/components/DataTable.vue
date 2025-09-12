@@ -54,12 +54,12 @@ const onEnter = (event: KeyboardEvent, task: any, field: string) => {
 
 <template>
     <slot />
-    <div v-if="loading" class="text-gray-500">Loading...</div>
+    <div v-if="loading" class="text-muted">Loading...</div>
     <table v-else class="min-w-full table-auto border-collapse ">
         <thead>
-            <tr class="bg-gray-100">
+            <tr class="bg-secondary ">
                 <th v-for="col in columns" :key="col.field"
-                    :class="['border border-gray-200 px-4 py-2', col.sortable ? 'cursor-pointer hover:bg-gray-200' : '']"
+                    :class="['border border-muted px-4 py-2', col.sortable ? 'cursor-pointer hover:bg-muted ' : '']"
                     @click="col.sortable ? sort(col.field) : null" :style="{ width: col.width }">
                     {{ col.header }}
                     <span
@@ -71,15 +71,15 @@ const onEnter = (event: KeyboardEvent, task: any, field: string) => {
             </tr>
         </thead>
         <tbody>
-            <tr v-for="item in tasks" :key="item.ID || item.id" class="hover:bg-gray-50">
-                <td v-for="col in columns" :key="col.field" class="border border-gray-200 px-4 py-2"
+            <tr v-for="item in tasks" :key="item.ID || item.id" class="hover:bg-surface ">
+                <td v-for="col in columns" :key="col.field" class="border border-muted px-4 py-2"
                     :style="{ width: col.width }">
                     <!-- Editable Text Fields -->
                     <input v-if="col.editable && !col.chippable && editing === `${item.ID}-${col.field}`"
                         :value="item[col.field]"
                         @blur="stopEdit(item, col.field, ($event.target as HTMLInputElement)?.value || '')"
                         @keydown="onEnter($event, item, col.field)"
-                        class="w-full border border-gray-300 rounded px-2 py-1" />
+                        class="w-full border border-muted rounded px-2 py-1" />
                     <!-- Editable Select for Status -->
                     <SelectOptions
                         v-else-if="col.editable && col.field === 'Status' && editing === `${item.ID}-${col.field}`"

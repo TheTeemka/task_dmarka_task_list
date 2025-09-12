@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"log/slog"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/TheTeemka/task_dmarka_task_list/internal/models"
@@ -104,7 +105,7 @@ func (r *TaskRepo) GetListByFilters(filter *models.TaskFilter) ([]*models.TaskMo
 	if err != nil {
 		return nil, fmt.Errorf("failed to build query: %w", err)
 	}
-
+	slog.Info("GetListByFilters query", "query", query, "args", args, "filter", filter)
 	rows, err := r.db.Query(query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get tasks: %w", err)
@@ -138,17 +139,33 @@ func FilterToSQL(f *models.TaskFilter, b squirrel.SelectBuilder) squirrel.Select
 		b = b.Offset(uint64(*f.Offset))
 	}
 
-	if f.TagIDs != nil {
-		b = b.Join("task_tags tt ON tasks.id = tt.task_id").
-			Where(squirrel.Eq{"tt.tag_id": f.TagIDs})
+	if len(f.TagIDs) != 0 {
+		b = b.Join("task_tags tt ON tasks.id = tt.task_id")
+		if f.TagsNot {
+			b = b.Where(squirrel.NotEq{"tt.tag_id": f.TagIDs})
+		} else {
+			b = b.Where(squirrel.Eq{"tt.tag_id": f.TagIDs})
+		}
 	}
 
-	if f.Priority != nil {
-		b = b.Where(squirrel.Eq{"tasks.priority": *f.Priority})
+	if len(f.Priority) != 0 {
+		if f.PriorityNot {
+			b = b.Where(squirrel.NotEq{"tasks.priority": f.Priority})
+		} else {
+			b = b.Where(squirrel.Eq{"tasks.priority": f.Priority})
+		}
 	}
 
-	if f.Status != nil {
-		b = b.Where(squirrel.Eq{"tasks.status": *f.Status})
+	if len(f.Status) != 0 {
+		if f.StatusNot {
+			b = b.Where(squirrel.NotEq{"tasks.status": f.Status})
+		} else {
+			b = b.Where(squirrel.Eq{"tasks.status": f.Status})
+		}
+	}
+
+	if f.Search != nil && *f.Search != "" {
+		b = b.Where(squirrel.Like{"tasks.title": "%" + *f.Search + "%"})
 	}
 
 	if f.SortBy != nil && *f.SortBy != "" {

@@ -67,8 +67,12 @@ export namespace models {
 	    Limit?: number;
 	    Offset?: number;
 	    TagIDs: number[];
-	    Status?: number;
-	    Priority?: number;
+	    TagsNot: boolean;
+	    Status: number[];
+	    StatusNot: boolean;
+	    Priority: number[];
+	    PriorityNot: boolean;
+	    Search?: string;
 	    SortBy?: string;
 	    SortOrder?: string;
 	
@@ -81,8 +85,12 @@ export namespace models {
 	        this.Limit = source["Limit"];
 	        this.Offset = source["Offset"];
 	        this.TagIDs = source["TagIDs"];
+	        this.TagsNot = source["TagsNot"];
 	        this.Status = source["Status"];
+	        this.StatusNot = source["StatusNot"];
 	        this.Priority = source["Priority"];
+	        this.PriorityNot = source["PriorityNot"];
+	        this.Search = source["Search"];
 	        this.SortBy = source["SortBy"];
 	        this.SortOrder = source["SortOrder"];
 	    }

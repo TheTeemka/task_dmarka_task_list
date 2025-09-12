@@ -62,13 +62,13 @@ watch(status, () => {
 
 <template>
     <div v-if="visible" class="fixed inset-0  bg-black/20  flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-xl">
+        <div class="bg-surface  rounded-lg shadow-lg p-6 w-full max-w-xl">
             <h2 class="text-xl font-bold mb-4">Add New Task</h2>
             <form @submit.prevent="addTask">
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-1">Title</label>
                     <input v-model="title" type="text" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        class="w-full px-3 py-2 border border-muted rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
                 <div class="flex space-x-3">
                     <div class="mb-4">
@@ -84,16 +84,16 @@ watch(status, () => {
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-1">Description</label>
                     <textarea v-model="description"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full px-3 py-2 border border-muted rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                         rows="5"></textarea>
                 </div>
                 <div class="flex justify-end gap-2">
                     <button type="button" @click="closeModal"
-                        class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 focus:outline-none">
+                        class="px-4 py-2 border border-muted rounded-md hover:bg-secondary  focus:outline-none">
                         Cancel
                     </button>
                     <button type="submit"
-                        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="px-4 py-2 bg-primary text-content rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary">
                         Add Task
                     </button>
                 </div>

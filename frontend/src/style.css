@@ -1,1 +1,46 @@
-@import "tailwindcss"
+@import "tailwindcss";
+
+@theme {
+    --color-deftext: #0f172a;
+    --color-primary: #5d96ec;
+    --color-muted: #e5e5e5;
+    --color-tertiary: #94a3b8;
+    --color-surface: #ffffff;
+    --color-accent: #64748b;
+    /* --color-secondary: #c5c5c5; */
+    --color-content: #0f172a;
+    --color-background: #f8fafc;
+    --color-status-none: #FFFFFF;
+    --color-status-pending: #d6d6d6;
+    --color-status-in-progress: #FFF3CD;
+    --color-status-completed: #D4EDDA;
+    --color-status-cancelled: #F8D7DA;
+    --color-priority-none: #FFFFFF;
+    --color-priority-low: #D4EDDA;
+    --color-priority-medium: #FFF3CD;
+    --color-priority-high: #D5A1A3;
+    --color-priority-urgent: #80ADBC;
+}
+
+.dark {
+    --color-deftext: #f1f5f9;
+    --color-primary: #2f7bed;
+    --color-muted: #334155;
+    --color-tertiary: #64748b;
+    --color-surface: #1e293b;
+    --color-accent: #94a3b8;
+        /* --color-secondary: #c5c5c5; */
+
+    --color-content: #f1f5f9;
+    --color-background: #272b34;
+    --color-status-none: #555555;
+    --color-status-pending: #555555;
+    --color-status-in-progress: #665c00;
+    --color-status-completed: #2d5a2d;
+    --color-status-cancelled: #6b2d2d;
+    --color-priority-none: #555555;
+    --color-priority-low: #2d5a2d;
+    --color-priority-medium: #665c00;
+    --color-priority-high: #6b2d2d;
+    --color-priority-urgent: #2d5a5a;
+}

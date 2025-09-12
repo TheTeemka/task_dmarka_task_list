@@ -5,6 +5,7 @@ import { models } from '@go/models';
 import DataTable from '@/components/DataTable.vue';
 import Column from '@/components/TaskColumn.vue';
 import TableActions from '@/components/TableActions.vue';
+import ThemeToggle from '@/components/ThemeToggle.vue';  // New import
 
 const tasks = ref<models.TaskDTO[]>([]);
 const loading = ref<boolean>(false);
@@ -43,7 +44,7 @@ const addTask = async (task: models.TaskDTO) => {
 const updateTask = async (id: number, updatedTask: models.TaskDTO) => {
     try {
         await UpdateTask(id, updatedTask);
-        await fetchTasks();  
+        await fetchTasks();
     } catch (e) {
         alert('Failed to update task: ' + e);
     }
@@ -53,8 +54,11 @@ onMounted(fetchTasks);
 </script>
 
 <template>
-    <div class="task-manager">
-        <h2 class="text-xl font-bold mb-4">Task Manager</h2>
+    <div class="task-manager ">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-content">Task Manager</h2>
+            <ThemeToggle /> <!-- Add the theme toggle here -->
+        </div>
         <TableActions :addTask="addTask" :filter="filter" />
         <DataTable :tasks="tasks" :loading="loading" :filter="filter" :updateTask="updateTask">
             <Column field="ID" header="ID" sortable width="4px" />
