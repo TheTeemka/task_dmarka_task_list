@@ -1,4 +1,5 @@
 # Task List Application
+![alt text](https://github.com/TheTeemka/task_dmarka_task_list)
 
 A modern desktop task management application built with Go, PostgreSQL, and Vue.js using the Wails framework.
 
