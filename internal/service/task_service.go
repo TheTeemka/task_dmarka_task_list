@@ -51,3 +51,16 @@ func (ts *TaskService) GetListByFilters(filter *models.TaskFilter) ([]*models.Ta
 	}
 	return tasks, nil
 }
+
+func (ts *TaskService) UpdateTask(id int64, task *models.TaskDTO) (*models.TaskDTO, error) {
+	if err := task.Validate(); err != nil {
+		return nil, err
+	}
+
+	updatedTask, err := ts.taskRepo.UpdateTask(id, task.ToModel())
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedTask.ToDTO(), nil
+}

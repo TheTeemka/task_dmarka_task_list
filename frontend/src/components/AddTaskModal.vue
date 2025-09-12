@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { models } from '@go/models';
-import {getStatusOptionByID, getPriorityOptionByID, statusOptionsWithColor, priorityOptionsWithColor, Option } from '@/constants/Options';
+import { getStatusOptionByID, getPriorityOptionByID, statusOptionsWithColor, priorityOptionsWithColor, Option } from '@/constants/Options';
 import SelectOptions from './SelectOptions.vue';
 
 defineProps<{
@@ -26,8 +26,8 @@ const addTask = () => {
     const taskData = {
         Title: title.value.trim(),
         Description: description.value.trim(),
-        Status: status.value?.id as number,  
-        Priority: priority.value?.id as number,  
+        Status: status.value?.id as number,
+        Priority: priority.value?.id as number,
     };
 
     // Validate before creating (optional, but improves safety)
@@ -54,7 +54,7 @@ const closeModal = () => {
     emit('close');
 };
 
-watch(status, ()=>{
+watch(status, () => {
     console.log(status)
 })
 
@@ -67,47 +67,33 @@ watch(status, ()=>{
             <form @submit.prevent="addTask">
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-1">Title</label>
-                    <input
-                        v-model="title"
-                        type="text"
-                        required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    <input v-model="title" type="text" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
+                <div class="flex space-x-3">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-1">Status</label>
+                        <SelectOptions v-model="status" :options="statusOptionsWithColor" />
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-1">Priority</label>
+                        <SelectOptions v-model="priority" :options="priorityOptionsWithColor" />
+                    </div>
+                </div>
+
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-1">Description</label>
-                    <textarea
-                        v-model="description"
+                    <textarea v-model="description"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        rows="3"
-                    ></textarea>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-1">Status</label>
-                    <SelectOptions
-                        v-model="status"
-                        :options="statusOptionsWithColor"
-                    />
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-1">Priority</label>
-                    <SelectOptions
-                        v-model="priority"
-                        :options="priorityOptionsWithColor"
-                    />
+                        rows="5"></textarea>
                 </div>
                 <div class="flex justify-end gap-2">
-                    <button
-                        type="button"
-                        @click="closeModal"
-                        class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 focus:outline-none"
-                    >
+                    <button type="button" @click="closeModal"
+                        class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 focus:outline-none">
                         Cancel
                     </button>
-                    <button
-                        type="submit"
-                        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         Add Task
                     </button>
                 </div>

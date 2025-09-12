@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { CreateNewTask, GetListByFilters } from '@go/service/TaskService';
+import { CreateNewTask, GetListByFilters, UpdateTask } from '@go/service/TaskService';
 import { models } from '@go/models';
 import DataTable from '@/components/DataTable.vue';
 import Column from '@/components/TaskColumn.vue';
@@ -36,9 +36,18 @@ watch(filter, () => {
 
 
 const addTask = async (task: models.TaskDTO) => {
-   await CreateNewTask(task);
-   await fetchTasks();
+    await CreateNewTask(task);
+    await fetchTasks();
 }
+
+const updateTask = async (id: number, updatedTask: models.TaskDTO) => {
+    try {
+        await UpdateTask(id, updatedTask);
+        await fetchTasks();  
+    } catch (e) {
+        alert('Failed to update task: ' + e);
+    }
+};
 
 onMounted(fetchTasks);
 </script>
@@ -47,11 +56,12 @@ onMounted(fetchTasks);
     <div class="task-manager">
         <h2 class="text-xl font-bold mb-4">Task Manager</h2>
         <TableActions :addTask="addTask" :filter="filter" />
-        <DataTable :tasks="tasks" :loading="loading" :filter="filter">
-            <Column field="ID" header="ID" sortable/>
-            <Column field="Title" header="Title" sortable/>
-            <Column field="Status" header="Status" chippable sortable/>
-            <Column field="Priority" header="Priority" chippable sortable/>
+        <DataTable :tasks="tasks" :loading="loading" :filter="filter" :updateTask="updateTask">
+            <Column field="ID" header="ID" sortable width="4px" />
+            <Column field="Title" header="Title" sortable editable width="20%" />
+            <Column field="Status" header="Status" chippable sortable editable width="10%" />
+            <Column field="Priority" header="Priority" chippable sortable editable width="10%" />
+            <Column field="Description" header="Description" editable />
         </DataTable>
     </div>
 </template>

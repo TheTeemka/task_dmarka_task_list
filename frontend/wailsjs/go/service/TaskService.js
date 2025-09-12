@@ -13,3 +13,7 @@ export function GetListByFilters(arg1) {
 export function GetTaskByID(arg1) {
   return window['go']['service']['TaskService']['GetTaskByID'](arg1);
 }
+
+export function UpdateTask(arg1, arg2) {
+  return window['go']['service']['TaskService']['UpdateTask'](arg1, arg2);
+}

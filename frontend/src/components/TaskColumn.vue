@@ -1,25 +1,24 @@
 <script setup lang="ts">
-import { inject, onMounted, readonly } from 'vue';
+import { inject } from 'vue';
 
 export interface Column {
     field: string;
     header: string;
     sortable?: boolean;
     chippable?: boolean;
+    editable?: boolean;
+    width?: string;  // Add width prop
 }
 
 const props = defineProps<Column>();
 
-const registerColumn = inject<(col: any) => void>('registerColumn');
-onMounted(()=>{
-    if (registerColumn) {
-        console.log(props)
-        registerColumn(readonly(props));
-    } else {
-        console.error("registerColumn not found");
-    }
-})
+const registerColumn = inject<(col: Column) => void>('registerColumn');
 
+if (registerColumn) {
+    registerColumn(props);
+}
 </script>
 
-<template></template>
+<template>
+    <!-- No template needed, as this is just for registration -->
+</template>

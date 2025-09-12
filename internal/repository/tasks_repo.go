@@ -50,13 +50,13 @@ func (r *TaskRepo) GetTaskByID(id int64) (*models.TaskModel, error) {
 	return &task, nil
 }
 
-func (r *TaskRepo) UpdateTask(task *models.TaskModel) (*models.TaskModel, error) {
+func (r *TaskRepo) UpdateTask(id int64, task *models.TaskModel) (*models.TaskModel, error) {
 	query := `
 		UPDATE tasks
 		SET title = ?, description = ?, status = ?, priority = ?
 		WHERE id = ?`
 
-	args := []any{task.Title, task.Description, task.Status, task.Priority, task.ID}
+	args := []any{task.Title, task.Description, task.Status, task.Priority, id}
 
 	result, err := r.db.Exec(query, args...)
 	if err != nil {

@@ -11,12 +11,20 @@ const props = defineProps<{
 
 const filterStatus = ref<Option|null>(null);
 watch(filterStatus, (newStatus) => {
-    props.filter.Status = newStatus?.id
+    if (newStatus?.id !== null) {
+        props.filter.Status = newStatus?.id
+    }else{
+        props.filter.Status = undefined
+    }
 })
 
 const filterPriority = ref<Option|null>(null);
 watch(filterPriority, (newPriority) => {
-    props.filter.Priority = newPriority?.id
+    if (newPriority?.id !== null) {
+        props.filter.Priority = newPriority?.id
+    }else{
+        props.filter.Priority = undefined
+    }
 })
 
 const addPageVisible = ref(false);
@@ -24,7 +32,7 @@ const addPageVisible = ref(false);
 </script>
 
 <template>
-    <div class="table-actions flex flex-wrap items-center gap-4 p-4 bg-gray-50 border-b border-gray-200">
+    <div class="table-actions flex flex-wrap items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
         <!-- Add New Task -->
         <div class="flex items-center gap-2">
             <button @click="addPageVisible = !addPageVisible"
@@ -35,6 +43,7 @@ const addPageVisible = ref(false);
         </div>
 
         <div class="flex items-center gap-2">
+            <span class="text-lg font-bold mr-10    "> Filters </span>
             <SelectOptions v-model="filterStatus"  :options="statusOptionsWithColor"/>
             <SelectOptions v-model="filterPriority" :options="priorityOptionsWithColor" />
         </div>

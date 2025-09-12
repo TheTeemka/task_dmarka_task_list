@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { Option } from '@/constants/Options';
 import ChipOption from '@/components/ChipOption.vue';
 
@@ -7,14 +7,16 @@ const props = defineProps<{
     modelValue: Option | null;
     options: Option[];
     placeholder?: string;
+    isOpen?: boolean;
 }>();
 
 const emit = defineEmits<{
     'update:modelValue': [value: any];
 }>();
 
-const isOpen = ref(false);
+const isOpen = ref( true);
 const dropdownRef = ref<HTMLElement | null>(null);  // Ref for the dropdown container
+const childRef = ref<HTMLElement | null>(null);  // Ref for the child dropdown div
 
 const selectedOption = computed((): Option => {
     const option = props.options.find(opt => opt.name === props.modelValue?.name);
@@ -36,9 +38,22 @@ const handleClickOutside = (event: Event) => {
     }
 };
 
+// Function to set parent width to match child
+const setParentWidth = () => {
 
-onMounted(() => {
-    document.addEventListener('click', handleClickOutside);
+    if (dropdownRef.value && childRef.value) {
+        const childWidth = childRef.value.offsetWidth;
+        dropdownRef.value.style.width = `${childWidth}px`;
+    }
+};
+
+
+onMounted(async () => {
+    isOpen.value = props.isOpen || false
+    setParentWidth();
+    setTimeout(() => {
+        document.addEventListener('click', handleClickOutside);
+    }, 0);
 });
 
 onUnmounted(() => {
@@ -47,13 +62,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="relative" ref="dropdownRef">
+    <div class="relative" ref="dropdownRef">  
         <div @click="toggleDropdown"
-            class="w-full  border border-gray-300 rounded-md bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 flex justify-between items-center">
+            class="w-full border border-gray-300 rounded-md bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 flex justify-between items-center">
             <ChipOption :chip="selectedOption" @click="selectOption(selectedOption)" />
-
         </div>
-        <div v-if="isOpen" class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+        <div  ref="childRef" class="absolute z-10 mt-1 bg-white border border-gray-300 rounded-md shadow-lg" :style="{visibility: isOpen ? 'visible' : 'hidden'}">
             <div v-for="option in options" :key="option.id || option.name">
                 <ChipOption :chip="option" @click="selectOption(option)" />
             </div>

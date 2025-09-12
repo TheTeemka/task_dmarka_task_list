@@ -7,3 +7,5 @@ export function CreateNewTask(arg1:models.TaskDTO):Promise<models.TaskDTO>;
 export function GetListByFilters(arg1:models.TaskFilter):Promise<Array<models.TaskDTO>>;
 
 export function GetTaskByID(arg1:number):Promise<models.TaskDTO>;
+
+export function UpdateTask(arg1:number,arg2:models.TaskDTO):Promise<models.TaskDTO>;
