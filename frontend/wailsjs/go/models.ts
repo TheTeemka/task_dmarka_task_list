@@ -23,9 +23,9 @@ export namespace models {
 	    Status: number;
 	    Priority: number;
 	    // Go type: time
-	    StartDate: any;
-	    // Go type: time
 	    DueDate: any;
+	    // Go type: time
+	    CompletedDate: any;
 	    // Go type: time
 	    CreatedDate: any;
 	
@@ -40,8 +40,8 @@ export namespace models {
 	        this.Description = source["Description"];
 	        this.Status = source["Status"];
 	        this.Priority = source["Priority"];
-	        this.StartDate = this.convertValues(source["StartDate"], null);
 	        this.DueDate = this.convertValues(source["DueDate"], null);
+	        this.CompletedDate = this.convertValues(source["CompletedDate"], null);
 	        this.CreatedDate = this.convertValues(source["CreatedDate"], null);
 	    }
 	

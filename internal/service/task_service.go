@@ -64,3 +64,7 @@ func (ts *TaskService) UpdateTask(id int64, task *models.TaskDTO) (*models.TaskD
 
 	return updatedTask.ToDTO(), nil
 }
+
+func (ts *TaskService) DeleteTask(id int64) error {
+	return ts.taskRepo.DeleteTask(id)
+}

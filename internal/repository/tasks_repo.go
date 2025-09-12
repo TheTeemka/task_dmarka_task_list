@@ -20,10 +20,10 @@ func NewTaskRepo(db *sql.DB) *TaskRepo {
 
 func (r *TaskRepo) CreateTask(task *models.TaskModel) (*models.TaskModel, error) {
 	query := `
-		INSERT INTO tasks (title, description, status, priority)
-		VALUES(?, ?, ?, ?)
+		INSERT INTO tasks (title, description, status, priority, due_date, completed_date)
+		VALUES(?, ?, ?, ?, ?, ?)
 		RETURNING id`
-	args := []any{task.Title, task.Description, task.Status, task.Priority}
+	args := []any{task.Title, task.Description, task.Status, task.Priority, task.DueDate, task.CompletedDate}
 
 	err := r.db.QueryRow(query, args...).Scan(&task.ID)
 	if err != nil {
@@ -35,12 +35,12 @@ func (r *TaskRepo) CreateTask(task *models.TaskModel) (*models.TaskModel, error)
 
 func (r *TaskRepo) GetTaskByID(id int64) (*models.TaskModel, error) {
 	query := `
-		SELECT id, title, description, status, priority
+		SELECT id, title, description, status, priority, due_date, completed_date, created_date
 		FROM tasks
 		WHERE id = ?`
 	var task models.TaskModel
 
-	err := r.db.QueryRow(query, id).Scan(&task.ID, &task.Title, &task.Description, &task.Status, &task.Priority)
+	err := r.db.QueryRow(query, id).Scan(&task.ID, &task.Title, &task.Description, &task.Status, &task.Priority, &task.DueDate, &task.CompletedDate, &task.CreatedDate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, merrors.ErrNotFound
@@ -54,10 +54,10 @@ func (r *TaskRepo) GetTaskByID(id int64) (*models.TaskModel, error) {
 func (r *TaskRepo) UpdateTask(id int64, task *models.TaskModel) (*models.TaskModel, error) {
 	query := `
 		UPDATE tasks
-		SET title = ?, description = ?, status = ?, priority = ?
+		SET title = ?, description = ?, status = ?, priority = ?, due_date = ?, completed_date = ?
 		WHERE id = ?`
 
-	args := []any{task.Title, task.Description, task.Status, task.Priority, id}
+	args := []any{task.Title, task.Description, task.Status, task.Priority, task.DueDate, task.CompletedDate, id}
 
 	result, err := r.db.Exec(query, args...)
 	if err != nil {
@@ -98,7 +98,7 @@ func (r *TaskRepo) DeleteTask(id int64) error {
 }
 
 func (r *TaskRepo) GetListByFilters(filter *models.TaskFilter) ([]*models.TaskModel, error) {
-	b := squirrel.StatementBuilder.Select("id", "title", "description", "status", "priority").From("tasks")
+	b := squirrel.StatementBuilder.Select("id", "title", "description", "status", "priority", "due_date", "completed_date", "created_date").From("tasks")
 
 	b = FilterToSQL(filter, b)
 	query, args, err := b.ToSql()
@@ -115,7 +115,7 @@ func (r *TaskRepo) GetListByFilters(filter *models.TaskFilter) ([]*models.TaskMo
 	var tasks []*models.TaskModel
 	for rows.Next() {
 		var task models.TaskModel
-		if err := rows.Scan(&task.ID, &task.Title, &task.Description, &task.Status, &task.Priority); err != nil {
+		if err := rows.Scan(&task.ID, &task.Title, &task.Description, &task.Status, &task.Priority, &task.DueDate, &task.CompletedDate, &task.CreatedDate); err != nil {
 			return nil, fmt.Errorf("failed to scan task: %w", err)
 		}
 		tasks = append(tasks, &task)

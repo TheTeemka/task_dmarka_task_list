@@ -11,7 +11,7 @@ const props = defineProps<{
     tasks: any[];
     loading?: boolean;
     updateTask: (id: number, task: models.TaskDTO) => Promise<void>;  // New prop
-
+    deleteTask: (id: number) => Promise<void>;  // Add delete prop
 }>();
 
 const columns = ref<Column[]>([]);
@@ -74,32 +74,38 @@ const onEnter = (event: KeyboardEvent, task: any, field: string) => {
             <tr v-for="item in tasks" :key="item.ID || item.id" class="hover:bg-surface ">
                 <td v-for="col in columns" :key="col.field" class="border border-muted px-4 py-2"
                     :style="{ width: col.width }">
+                    <!-- Actions Column -->
+                    <template v-if="col.field === 'actions'">
+                        <button @click="props.deleteTask(item.ID)" class="px-2 py-1 bg-error text-content rounded hover:bg-accent">Delete</button>
+                    </template>
                     <!-- Editable Text Fields -->
-                    <input v-if="col.editable && !col.chippable && editing === `${item.ID}-${col.field}`"
-                        :value="item[col.field]"
-                        @blur="stopEdit(item, col.field, ($event.target as HTMLInputElement)?.value || '')"
-                        @keydown="onEnter($event, item, col.field)"
-                        class="w-full border border-muted rounded px-2 py-1" />
-                    <!-- Editable Select for Status -->
-                    <SelectOptions
-                        v-else-if="col.editable && col.field === 'Status' && editing === `${item.ID}-${col.field}`"
-                        :modelValue="getStatusOptionByID(item[col.field])" :options="statusOptionsWithColor"
-                        :isOpen="true" 
-                        @update:modelValue="stopEdit(item, col.field, $event?.id || null)" />
+                    <template v-else>
+                        <input v-if="col.editable && !col.chippable && editing === `${item.ID}-${col.field}`"
+                            :value="item[col.field]"
+                            @blur="stopEdit(item, col.field, ($event.target as HTMLInputElement)?.value || '')"
+                            @keydown="onEnter($event, item, col.field)"
+                            class="w-full border border-muted rounded px-2 py-1" />
+                        <!-- Editable Select for Status -->
+                        <SelectOptions
+                            v-else-if="col.editable && col.field === 'Status' && editing === `${item.ID}-${col.field}`"
+                            :modelValue="getStatusOptionByID(item[col.field])" :options="statusOptionsWithColor"
+                            :isOpen="true" 
+                            @update:modelValue="stopEdit(item, col.field, $event?.id || null)" />
 
-                    <!-- Editable Select for Priority -->
-                    <SelectOptions
-                        v-else-if="col.editable && col.field === 'Priority' && editing === `${item.ID}-${col.field}`"
-                        :modelValue="getPriorityOptionByID(item[col.field])" :options="priorityOptionsWithColor"
-                        :isOpen="true" 
-                        @update:modelValue="stopEdit(item, col.field, $event?.id || null)" />
+                        <!-- Editable Select for Priority -->
+                        <SelectOptions
+                            v-else-if="col.editable && col.field === 'Priority' && editing === `${item.ID}-${col.field}`"
+                            :modelValue="getPriorityOptionByID(item[col.field])" :options="priorityOptionsWithColor"
+                            :isOpen="true" 
+                            @update:modelValue="stopEdit(item, col.field, $event?.id || null)" />
 
-                    <div v-else @click="col.editable ? startEdit(item.ID, col.field) : null"
-                        :class="col.editable ? 'cursor-pointer' : ''">
-                        <ChipOption v-if="col.chippable"
-                            :chip="col.field === 'Status' ? getStatusOptionByID(item[col.field]) : getPriorityOptionByID(item[col.field])" />
-                        <span v-else>{{ item[col.field] }}</span>
-                    </div>
+                        <div v-else @click="col.editable ? startEdit(item.ID, col.field) : null"
+                            :class="col.editable ? 'cursor-pointer' : ''">
+                            <ChipOption v-if="col.chippable"
+                                :chip="col.field === 'Status' ? getStatusOptionByID(item[col.field]) : getPriorityOptionByID(item[col.field])" />
+                            <span v-else>{{ item[col.field] }}</span>
+                        </div>
+                    </template>
                 </td>
             </tr>
         </tbody>

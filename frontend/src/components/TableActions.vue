@@ -32,7 +32,6 @@ watch(search, (newSearch) => {
     props.filter.Search = newSearch;
 })
 
-const showAdvanced = ref(false);
 
 const addPageVisible = ref(false);
 

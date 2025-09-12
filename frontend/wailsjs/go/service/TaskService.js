@@ -6,6 +6,10 @@ export function CreateNewTask(arg1) {
   return window['go']['service']['TaskService']['CreateNewTask'](arg1);
 }
 
+export function DeleteTask(arg1) {
+  return window['go']['service']['TaskService']['DeleteTask'](arg1);
+}
+
 export function GetListByFilters(arg1) {
   return window['go']['service']['TaskService']['GetListByFilters'](arg1);
 }

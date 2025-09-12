@@ -47,3 +47,41 @@ func (ts *TagsService) UpdateTag(tag *models.TagDTO) (*models.TagDTO, error) {
 
 	return updatedTag.ToDTO(), nil
 }
+
+func (ts *TagsService) DeleteTag(id int64) error {
+	return ts.tagsRepo.DeleteTag(id)
+}
+
+func (ts *TagsService) GetAllTags() ([]*models.TagDTO, error) {
+	tagModels, err := ts.tagsRepo.GetAllTags()
+	if err != nil {
+		return nil, err
+	}
+
+	var tags []*models.TagDTO
+	for _, tm := range tagModels {
+		tags = append(tags, tm.ToDTO())
+	}
+	return tags, nil
+}
+
+func (ts *TagsService) GetTagsForTask(taskID int64) ([]*models.TagDTO, error) {
+	tagModels, err := ts.tagsRepo.GetTagsForTask(taskID)
+	if err != nil {
+		return nil, err
+	}
+
+	var tags []*models.TagDTO
+	for _, tm := range tagModels {
+		tags = append(tags, tm.ToDTO())
+	}
+	return tags, nil
+}
+
+func (ts *TagsService) AddTagToTask(taskID, tagID int64) error {
+	return ts.tagsRepo.AddTagToTask(taskID, tagID)
+}
+
+func (ts *TagsService) RemoveTagFromTask(taskID, tagID int64) error {
+	return ts.tagsRepo.RemoveTagFromTask(taskID, tagID)
+}

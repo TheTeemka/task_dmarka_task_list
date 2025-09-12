@@ -11,9 +11,9 @@ CREATE TABLE tasks (
   description TEXT,
   status INTEGER,
   priority INTEGER,
-  start_date DATETIME,
   due_date DATETIME,
-  created_date DATETIME
+  completed_date DATETIME,
+  created_date DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE task_tags (

@@ -4,6 +4,8 @@ import {models} from '../models';
 
 export function CreateNewTask(arg1:models.TaskDTO):Promise<models.TaskDTO>;
 
+export function DeleteTask(arg1:number):Promise<void>;
+
 export function GetListByFilters(arg1:models.TaskFilter):Promise<Array<models.TaskDTO>>;
 
 export function GetTaskByID(arg1:number):Promise<models.TaskDTO>;
