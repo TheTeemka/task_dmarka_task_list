@@ -165,7 +165,10 @@ func FilterToSQL(f *models.TaskFilter, b squirrel.SelectBuilder) squirrel.Select
 	}
 
 	if f.Search != nil && *f.Search != "" {
-		b = b.Where(squirrel.Like{"tasks.title": "%" + *f.Search + "%"})
+		b = b.Where(squirrel.Or{
+			squirrel.ILike{"tasks.title": "%" + *f.Search + "%"},
+			squirrel.ILike{"tasks.description": "%" + *f.Search + "%"},
+		})
 	}
 
 	if f.SortBy != nil && *f.SortBy != "" {
