@@ -19,7 +19,7 @@ The fastest way to get started is using Docker Compose:
 
 ### 1. Clone the repository
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/TheTeemka/task_dmarka_task_list
 cd task_dmarka_task_list
 ```
 
