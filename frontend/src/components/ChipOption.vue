@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Option } from '@/constants/Options';
+import { Option } from '@/types/Options';
 defineProps<{
     chip: Option
 }>()

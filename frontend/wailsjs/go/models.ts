@@ -23,7 +23,7 @@ export namespace models {
 	    status: number;
 	    priority: number;
 	    due_date: string;
-	    completed_date: string;
+	    completed_date?: string;
 	    created_at: string;
 	
 	    static createFrom(source: any = {}) {
@@ -42,7 +42,7 @@ export namespace models {
 	        this.created_at = source["created_at"];
 	    }
 	}
-	export class TaskFilter {
+	export class TaskFilterDTO {
 	    Limit?: number;
 	    Offset?: number;
 	    TagIDs: number[];
@@ -54,9 +54,10 @@ export namespace models {
 	    Search?: string;
 	    SortBy?: string;
 	    SortOrder?: string;
+	    Before?: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new TaskFilter(source);
+	        return new TaskFilterDTO(source);
 	    }
 	
 	    constructor(source: any = {}) {
@@ -72,6 +73,7 @@ export namespace models {
 	        this.Search = source["Search"];
 	        this.SortBy = source["SortBy"];
 	        this.SortOrder = source["SortOrder"];
+	        this.Before = source["Before"];
 	    }
 	}
 

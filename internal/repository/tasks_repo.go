@@ -97,7 +97,7 @@ func (r *TaskRepo) DeleteTask(id int64) error {
 	return nil
 }
 
-func (r *TaskRepo) GetListByFilters(filter *models.TaskFilter) ([]*models.TaskModel, error) {
+func (r *TaskRepo) GetListByFilters(filter *models.TaskFilterModel) ([]*models.TaskModel, error) {
 	b := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).Select("id", "title", "description", "status", "priority", "due_date", "completed_date", "created_at").From("tasks")
 
 	b = FilterToSQL(filter, b)
@@ -108,6 +108,7 @@ func (r *TaskRepo) GetListByFilters(filter *models.TaskFilter) ([]*models.TaskMo
 	slog.Info("GetListByFilters query", "query", query, "args", args, "filter", filter)
 	rows, err := r.db.Query(query, args...)
 	if err != nil {
+		slog.Error("GetListByFilters query error", "error", err)
 		return nil, fmt.Errorf("failed to get tasks: %w", err)
 	}
 	defer rows.Close()
@@ -127,7 +128,7 @@ func (r *TaskRepo) GetListByFilters(filter *models.TaskFilter) ([]*models.TaskMo
 	return tasks, nil
 }
 
-func FilterToSQL(f *models.TaskFilter, b squirrel.SelectBuilder) squirrel.SelectBuilder {
+func FilterToSQL(f *models.TaskFilterModel, b squirrel.SelectBuilder) squirrel.SelectBuilder {
 	if f == nil {
 		return b
 	}
@@ -177,6 +178,10 @@ func FilterToSQL(f *models.TaskFilter, b squirrel.SelectBuilder) squirrel.Select
 			order = "DESC"
 		}
 		b = b.OrderBy(fmt.Sprintf("%s %s", *f.SortBy, order))
+	}
+
+	if f.Before != nil && !f.Before.IsZero() {
+		b = b.Where(squirrel.Lt{"tasks.due_date": f.Before})
 	}
 
 	return b

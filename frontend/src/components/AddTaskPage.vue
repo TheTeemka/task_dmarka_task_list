@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { models } from '@go/models';
-import { getStatusOptionByID, getPriorityOptionByID, statusOptionsWithColor, priorityOptionsWithColor, Option } from '@/constants/Options';
+import { getStatusOptionByID, getPriorityOptionByID, statusOptionsWithColor, priorityOptionsWithColor, Option } from '@/types/Options';
 import SelectOptions from './SelectOptions.vue';
 import Datepicker from '@vuepic/vue-datepicker';
+import { formatDate, disablePastDates } from '@/utils/dateFormatter';
 import '@vuepic/vue-datepicker/dist/main.css';
 
 defineProps<{
@@ -26,18 +27,19 @@ const dueDate = ref<Date | null>(null);
 const addTask = () => {
     if (!title.value.trim()) return;
 
-    const taskData = {
+    const task: models.TaskDTO = {
+        id: 0, // Will be set by backend
         title: title.value.trim(),
         description: description.value.trim(),
-        status: status.value?.id as number,
-        priority: priority.value?.id as number,
-        due_date: dueDate.value || new Date(),
+        status: status.value?.id ?? 0,
+        priority: priority.value?.id ?? 0,
+        due_date: dueDate.value ? dueDate.value.toISOString() : new Date().toISOString(),
+        completed_date: '',
+        created_at: '',
     };
 
 
-    const task = new models.TaskDTO(taskData);
-
-    console.log(taskData, task)
+    console.log(task, task)
     emit('add', task);
     resetForm();
     emit('close');
@@ -56,38 +58,6 @@ const closeModal = () => {
     emit('close');
 };
 
-// Format date to presentable format
-const formatDate = (date: any): string => {
-    if (!date) return '';
-
-    const dateObj = new Date(date);
-    if (isNaN(dateObj.getTime())) return '';
-
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    const dateOnly = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
-
-    // Check for relative dates
-    if (dateOnly.getTime() === today.getTime()) {
-        return 'Today';
-    } else if (dateOnly.getTime() === tomorrow.getTime()) {
-        return 'Tomorrow';
-    } else if (dateOnly.getTime() === yesterday.getTime()) {
-        return 'Yesterday';
-    }
-
-    // Format as readable date
-    return dateObj.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-};
 
 // Custom format function for Datepicker
 const formatDateForPicker = (date: Date): string => {
@@ -120,7 +90,7 @@ const formatDateForPicker = (date: Date): string => {
                     <div class="mb-4 h-full">
                         <label class="block text-sm font-medium mb-1">Due Date</label>
                         <Datepicker v-model="dueDate" :enable-time-picker="false" :format="formatDateForPicker"
-                            placeholder="Select due date" :text-input="true" :clearable="true" :auto-apply="true"
+                            placeholder="Select due date" :text-input="true" :clearable="true" :auto-apply="true" :disabled-dates="disablePastDates"
                             required />
                     </div>
                 </div>

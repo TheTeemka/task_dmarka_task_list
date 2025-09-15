@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { ref, provide } from 'vue';
 import ChipOption from '@/components/ChipOption.vue';
-import { getStatusOptionByID, getPriorityOptionByID, statusOptionsWithColor, priorityOptionsWithColor } from '@/constants/Options';
+import { getStatusOptionByID, getPriorityOptionByID, statusOptionsWithColor, priorityOptionsWithColor } from '@/types/Options';
 import { models } from '@go/models';
 import { Column } from '@/components/TaskColumn.vue'
-import SelectOptions from './SelectOptions.vue';
+import SelectOptions from '@/components/SelectOptions.vue';
+import  {disablePastDates, formatDate} from '@/utils/dateFormatter'
 import Datepicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 
 
 const props = defineProps<{
-    filter: models.TaskFilter
+    filter: models.TaskFilterDTO
     tasks: models.TaskDTO[];
     loading?: boolean;
     updateTask: (id: number, task: models.TaskDTO) => Promise<void>;  // New prop
@@ -53,39 +54,6 @@ const onEnter = (event: KeyboardEvent, task: any, field: string) => {
     }
 };
 
-// Format date to presentable format
-const formatDate = (date: string): string => {
-    if (!date) return '';
-
-    const dateObj = new Date(date);
-    if (isNaN(dateObj.getTime())) return '';
-
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    const dateOnly = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
-
-    // Check for relative dates
-    if (dateOnly.getTime() === today.getTime()) {
-        return 'Today';
-    } else if (dateOnly.getTime() === tomorrow.getTime()) {
-        return 'Tomorrow';
-    } else if (dateOnly.getTime() === yesterday.getTime()) {
-        return 'Yesterday';
-    }
-
-    // Format as readable date
-    return dateObj.toLocaleDateString('en-KZ', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-};
-
 </script>
 
 <template>
@@ -95,7 +63,8 @@ const formatDate = (date: string): string => {
         <thead>
             <tr class="bg-secondary ">
                 <th v-for="col in columns" :key="col.field"
-                    :class="['border border-muted px-4 py-2', col.sortable ? 'cursor-pointer hover:bg-muted ' : '']"
+                    class="border border-muted px-2 py-2"
+                    :class="[ col.sortable ? 'cursor-pointer hover:bg-muted ' : '']"
                     @click="col.sortable ? sort(col.field) : null" :style="{ width: col.width }">
                     {{ col.header }}
                     <span
@@ -132,11 +101,12 @@ const formatDate = (date: string): string => {
 
                         <!-- Editable Date Input for DueDate -->
                         <Datepicker v-else-if="col.editable && col.isDate && editing === `${item.id}-${col.field}`"
-                            :model-value="item[col.field as keyof models.TaskDTO] ? new Date(item[col.field as keyof models.TaskDTO]) : null"
+                            :model-value="item[col.field as keyof models.TaskDTO]"
                             :enable-time-picker="false" :format="'yyyy-MM-dd'" :text-input="true" class="w-full"
                             :clearable="false"
                             :hide-input-icon="true"
-                            :auto-apply="true" @update:model-value="stopEdit(item, col.field, $event)" />
+                            :auto-apply="true" @update:model-value="stopEdit(item, col.field, $event)"
+                            :disabled-dates="disablePastDates" />
 
                         <textarea v-else-if="col.editable && editing === `${item.id}-${col.field}`"
                             :value="item[col.field as keyof models.TaskDTO]"     @blur="stopEdit(item, col.field, ($event.target as HTMLTextAreaElement)?.value || '')"

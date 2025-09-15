@@ -16,6 +16,7 @@ func NewTaskService(taskRepo *repository.TaskRepo) *TaskService {
 }
 
 func (ts *TaskService) CreateNewTask(task *models.TaskDTO) (*models.TaskDTO, error) {
+	slog.Info("CreateNewTask called", "task", task)
 	if err := task.Validate(); err != nil {
 		return nil, err
 	}
@@ -37,13 +38,13 @@ func (ts *TaskService) GetTaskByID(id int64) (*models.TaskDTO, error) {
 	return taskModel.ToDTO(), nil
 }
 
-func (ts *TaskService) GetListByFilters(filter *models.TaskFilter) ([]*models.TaskDTO, error) {
+func (ts *TaskService) GetListByFilters(filter *models.TaskFilterDTO) ([]*models.TaskDTO, error) {
 	slog.Info("GetListByFilters called", "filter", filter)
 	if err := filter.Validate(); err != nil {
 		return nil, err
 	}
 
-	taskModels, err := ts.taskRepo.GetListByFilters(filter)
+	taskModels, err := ts.taskRepo.GetListByFilters(filter.ToModel())
 	if err != nil {
 		return nil, err
 	}

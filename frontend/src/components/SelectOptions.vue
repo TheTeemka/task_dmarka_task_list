@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { Option } from '@/constants/Options';
+import { Option } from '@/types/Options';
 import ChipOption from '@/components/ChipOption.vue';
 
 const props = defineProps<{

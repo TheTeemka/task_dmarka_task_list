@@ -11,7 +11,7 @@ import ConfirmModal from '@/components/ConfirmModal.vue';
 const tasks = ref<models.TaskDTO[]>([]);
 const loading = ref<boolean>(false);
 const error = ref<string | null>(null);
-const filter = ref<models.TaskFilter>(new models.TaskFilter({}));
+const filter = ref<models.TaskFilterDTO>(new models.TaskFilterDTO({}));
 
 // Confirm modal state
 const confirmModal = ref({
@@ -91,8 +91,8 @@ onMounted(fetchTasks);
             <Column field="title" header="Title" sortable editable width="20%" />
             <Column field="status" header="Status" chippable sortable editable width="10%" />
             <Column field="priority" header="Priority" chippable sortable editable width="10%" />
-            <Column field="created_at" header="Created Date" sortable  isDate width="12%" />
-            <Column field="due_date" header="Due Date" sortable editable isDate width="12%" />
+            <Column field="created_at" header="Created Date" sortable  isDate width="15%" />
+            <Column field="due_date" header="Due Date" sortable editable isDate width="15%" />
             <Column field="description" header="Description" editable />
             <Column field="actions" header="Actions" width="10%" />
         </DataTable>

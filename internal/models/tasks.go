@@ -11,7 +11,7 @@ type TaskModel struct {
 	Status        int
 	Priority      int
 	DueDate       time.Time
-	CompletedDate time.Time
+	CompletedDate *time.Time
 	CreatedDate   time.Time
 }
 
@@ -28,8 +28,9 @@ func (t *TaskModel) ToDTO() *TaskDTO {
 	if !t.DueDate.IsZero() {
 		dto.DueDate = t.DueDate.Format(time.RFC3339)
 	}
-	if !t.CompletedDate.IsZero() {
-		dto.CompletedDate = t.CompletedDate.Format(time.RFC3339)
+	if t.CompletedDate != nil && !t.CompletedDate.IsZero() {
+		s := t.CompletedDate.Format(time.RFC3339)
+		dto.CompletedDate = &s
 	}
 	if !t.CreatedDate.IsZero() {
 		dto.CreatedDate = t.CreatedDate.Format(time.RFC3339)
@@ -39,14 +40,14 @@ func (t *TaskModel) ToDTO() *TaskDTO {
 }
 
 type TaskDTO struct {
-	ID            int64  `json:"id" validate:"omitempty,min=1"`
-	Title         string `json:"title" validate:"required,min=1,max=100"`
-	Description   string `json:"description" validate:"omitempty,max=500"`
-	Status        int    `json:"status" validate:"min=0,max=4"`
-	Priority      int    `json:"priority" validate:"min=0,max=4"`
-	DueDate       string `json:"due_date" validate:"omitempty"`
-	CompletedDate string `json:"completed_date" validate:"omitempty"`
-	CreatedDate   string `json:"created_at" validate:"omitempty"`
+	ID            int64   `json:"id" validate:"omitempty,min=1"`
+	Title         string  `json:"title" validate:"required,min=1,max=100"`
+	Description   string  `json:"description" validate:"omitempty,max=500"`
+	Status        int     `json:"status" validate:"min=0,max=4"`
+	Priority      int     `json:"priority" validate:"min=0,max=4"`
+	DueDate       string  `json:"due_date" validate:"omitempty"`
+	CompletedDate *string `json:"completed_date" validate:"omitempty"`
+	CreatedDate   string  `json:"created_at" validate:"omitempty"`
 }
 
 func (t *TaskDTO) Validate() error {
@@ -68,9 +69,9 @@ func (t *TaskDTO) ToModel() *TaskModel {
 			model.DueDate = parsed
 		}
 	}
-	if t.CompletedDate != "" {
-		if parsed, err := time.Parse(time.RFC3339, t.CompletedDate); err == nil {
-			model.CompletedDate = parsed
+	if t.CompletedDate != nil {
+		if parsed, err := time.Parse(time.RFC3339, *t.CompletedDate); err == nil {
+			model.CompletedDate = &parsed
 		}
 	}
 	if t.CreatedDate != "" {
