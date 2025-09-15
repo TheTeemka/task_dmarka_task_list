@@ -66,7 +66,7 @@ PSQL_SSLMODE=disable
 PSQL_SOURCE=postgres://postgres:your_password@localhost:5432/tasklist?sslmode=disable
 
 # Goose Migration Configuration
-GOOSE_DBSTRING=${PSQL_SOURCE}
+GOOSE_DBSTRING=$PSQL_SOURCE
 GOOSE_DRIVER=postgres
 GOOSE_MIGRATION_DIR=./internal/database/migrations
 ```
